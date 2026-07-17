@@ -5,30 +5,29 @@
 @layer base {
   :root {
     --status-removed: #f4776b;
-    --status-removed-bg: #4a2626;
     --status-deleted: #d6a35c;
-    --status-deleted-bg: #41371f;
     --status-admin: #ff5c8a;
-    --status-admin-bg: color-mix(in srgb, #ff5c8a 10%, var(--bg));
     --status-mod: #ff6a33;
-    --status-mod-bg: color-mix(in srgb, #ff6a33 10%, var(--bg));
 
     --bg: #0d0d0d;
-    --accent: #e6e4e1;
-    --accent-2: color-mix(in srgb, var(--accent) 60%, var(--bg));
-    --text: color-mix(in srgb, var(--accent) 90%, var(--bg));
-    --text-muted: color-mix(in srgb, var(--accent) 60%, var(--bg));
-    --text-faint: color-mix(in srgb, var(--accent) 35%, var(--bg));
-    --border: color-mix(in srgb, var(--accent) 15%, var(--bg));
-    --border-hover: color-mix(in srgb, var(--accent) 25%, var(--bg));
-    --bg-elevated: color-mix(in srgb, var(--accent) 4%, var(--bg));
+    --tint: var(--accent);
+    --accent-text: color-mix(in srgb, var(--tint) 70%, var(--text-base, white));
+    --text: color-mix(in srgb, var(--tint) 30%, var(--text-base, white));
+    --text-muted: color-mix(in srgb, var(--tint) 30%, color-mix(in srgb, var(--text-base, white) 65%, var(--bg)));
+    --text-faint: color-mix(in srgb, var(--tint) 20%, color-mix(in srgb, var(--text-base, white) 45%, var(--bg)));
+    --border: color-mix(in srgb, color-mix(in srgb, var(--tint) 30%, var(--text-base, white)) 18%, var(--bg));
+    --border-hover: color-mix(in srgb, color-mix(in srgb, var(--tint) 30%, var(--text-base, white)) 28%, var(--bg));
+    --bg-elevated: color-mix(in srgb, color-mix(in srgb, var(--tint) 30%, var(--text-base, white)) 8%, var(--bg));
 }
 
-  body {
+  html, body {
     font-family: ui-monospace, 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
     background-color: var(--bg);
     color: var(--text);
-    color-scheme: dark;
+    color-scheme: var(--color-scheme, dark);
+    /* Translated UI: long German compounds / unspaced CJK runs must break
+       instead of overflowing their containers. */
+    overflow-wrap: break-word;
   }
 
   * {
@@ -37,6 +36,17 @@
   }
 }
 
+/* Keyboard focus ring. Guarantees a visible focus indicator on every
+   interactive element for keyboard users — including the many controls that
+   set Tailwind's `outline-none`, hence !important. Mouse clicks (which don't
+   match :focus-visible) stay ring-free.
+   Text inputs/textareas/selects are excluded: browsers treat those as
+   focus-visible on mouse click too (typing is expected next), and they
+   already get their own `focus:border-[color:var(--accent)]` treatment. */
+:where(a, button, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px;
+}
 
 /* Custom color for date picker calendar icon using CSS mask */
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -56,3 +66,57 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
     background-color: var(--accent);
 }
+
+/* Virtualize long result lists without a windowing lib: the browser skips
+   layout/paint for off-screen cards while keeping them mounted (so card state
+   like expanded bodies / loaded replies survives scroll). contain-intrinsic-size
+   gives the scrollbar a sane height estimate before a card paints. */
+.cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 140px;
+}
+
+/* Loading skeletons — animated placeholders reduce layout shift vs a single
+   centered spinner. Opacity + an explicit compositor layer (will-change +
+   translateZ) keeps the pulse off the main thread for smooth fps. */
+.skeleton,
+.skeleton-card {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    will-change: opacity;
+    transform: translateZ(0);
+    contain: layout style paint;
+    backface-visibility: hidden;
+}
+.skeleton {
+    background-color: var(--border);
+    border-radius: 4px;
+}
+@keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+}
+
+/* Respect the OS reduced-motion setting: kill transitions/animations and the
+   skeleton shimmer so the app doesn't fight users who asked for stillness. */
+/* The fixed header background is transparent at the top of the page
+   and becomes opaque on scroll to keep content from showing through. */
+.header-top {
+    background-color: transparent !important;
+    border-bottom: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .skeleton {
+        animation: none;
+        background: var(--border);
+    }
+}
+

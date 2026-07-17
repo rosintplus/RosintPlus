@@ -1,71 +1,95 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>try{var l=localStorage.getItem("rosint-lang")||(navigator.language||"").slice(0,2);if(!l||!{en:1,es:1,fr:1,de:1,ja:1,zh:1}[l])l="en";document.documentElement.lang=l}catch(e){}</script>
   <meta charset="UTF-8" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    html, body { overflow-x: hidden; max-width: 100vw; background-color: #0d0d0d; }
+    html, body { overflow-x: hidden; width: 100%; max-width: 100%; background-color: var(--bg, #0d0d0d); }
   </style>
 
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" href="/top.png" sizes="48x48" />
-  <link rel="apple-touch-icon" href="/top.png" />
+  <!-- Apply the cached theme before first paint to avoid a dark flash on refresh -->
+  <script>
+    try {
+      var c = JSON.parse(localStorage.getItem("rosint-resolved"));
+      if (c) {
+        var d = c.mode === "dark" || (c.mode !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+        var p = d ? c.dark : c.light;
+        var s = document.documentElement.style;
+        s.setProperty("--bg", p.bg);
+        s.setProperty("--accent", p.accent);
+        s.setProperty("--tint", p.tint || p.accent);
+        s.setProperty("--text-base", d ? "white" : "black");
+        s.setProperty("--color-scheme", d ? "dark" : "light");
+        var _t = p.tint || p.accent, _b = d ? "white" : "black";
+        s.setProperty("--text", "color-mix(in srgb, " + _t + " 30%, " + _b + ")");
+        s.setProperty("--text-muted", "color-mix(in srgb, " + _t + " 30%, color-mix(in srgb, " + _b + " 65%, " + p.bg + "))");
+      }
+    } catch (e) { /* first visit or corrupted cache — default palette applies */ }
+  </script>
+
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <link rel="preconnect" href="https://arctic-shift.photon-reddit.com" />
+  <link rel="preconnect" href="https://api.pullpush.io" />
+  <link rel="dns-prefetch" href="https://arctic-shift.photon-reddit.com" />
+  <link rel="dns-prefetch" href="https://api.pullpush.io" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Rosint — Search Deleted Reddit Posts</title>
+  <title>Rosint+</title>
 
   <!-- Primary SEO -->
   <meta name="description" content="Search deleted posts, removed comments, and private Reddit accounts using distributed open-source archives. Powered by Arctic Shift and PullPush." />
   <meta name="keywords" content="reddit osint, deleted reddit posts, removed reddit comments, reddit archive, reddit search" />
-  <link rel="canonical" href="https://rosint.dev/" />
+  <link rel="canonical" href="https://zuxu4n.github.io/Rosint/" />
+  <link rel="alternate" href="https://zuxu4n.github.io/Rosint/" hreflang="x-default" />
+  <link rel="alternate" href="https://zuxu4n.github.io/Rosint/" hreflang="en" />
+  <link rel="alternate" href="https://zuxu4n.github.io/Rosint/?lang=es" hreflang="es" />
+  <link rel="alternate" href="https://zuxu4n.github.io/Rosint/?lang=fr" hreflang="fr" />
+  <link rel="alternate" href="https://zuxu4n.github.io/Rosint/?lang=de" hreflang="de" />
+  <link rel="alternate" href="https://zuxu4n.github.io/Rosint/?lang=ja" hreflang="ja" />
+  <link rel="alternate" href="https://zuxu4n.github.io/Rosint/?lang=zh" hreflang="zh" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://rosint.dev/" />
-  <meta property="og:title" content="Rosint — Search deleted & private Reddit posts" />
+  <meta property="og:url" content="https://zuxu4n.github.io/Rosint/" />
+  <meta property="og:title" content="rOSINT+ — Search deleted & private Reddit posts" />
   <meta property="og:description" content="Recover deleted posts, removed comments, and browse private Reddit accounts using distributed open-source archives." />
-  <meta property="og:image" content="https://rosint.dev/og-image.png" />
+  <meta property="og:image" content="https://zuxu4n.github.io/Rosint/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Rosint - Search deleted & private Reddit posts" />
+  <meta name="twitter:title" content="rOSINT+ - Search deleted & private Reddit posts" />
   <meta name="twitter:description" content="Recover deleted posts, removed comments, and browse private Reddit accounts using distributed open-source archives." />
-  <meta name="twitter:image" content="https://rosint.dev/og-image.png" />
+  <meta name="twitter:image" content="https://zuxu4n.github.io/Rosint/og-image.png" />
 
   <!-- Theme -->
   <meta name="theme-color" content="#0d0d0d" />
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-T6Z3V68K4F"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-T6Z3V68K4F');
-  </script>
+  
+  
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2625186054016024"
-          crossorigin="anonymous"></script>
+  
 
   <!-- Structured data -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Rosint",
-      "url": "https://rosint.dev",
+      "name": "rOSINT+",
+      "url": "https://zuxu4n.github.io/Rosint/",
       "description": "Search deleted posts, removed comments, and private Reddit accounts using distributed open-source archives.",
       "applicationCategory": "SearchApplication",
       "operatingSystem": "Any",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
     }
   </script>
+  
+  
+  
+  
 </head>
 <body>
 <div id="root"></div>

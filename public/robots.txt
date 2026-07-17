@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://rosint.dev/sitemap.xml
+Sitemap: https://zuxu4n.github.io/Rosint/sitemap.xml
